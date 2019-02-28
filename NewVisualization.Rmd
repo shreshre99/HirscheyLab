@@ -1,12 +1,13 @@
 ---
-title: "Downloaded Visualization Libraries"
+title: "Gene Set Analysis and Visualization"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+Here in this code I will be trying different enrichment libraries to conduct enrichment anlysis. Each library will be given three blocks with the first block being conducting the actual enrichment and the second and third blocks that follows right after being the vizualizer. 
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
 
+
+This first chunk conducts Gene Set Erichment Analysis with the Disease Ontology Semantic and Enrichment anlysis library. It then uses the enrichplot library to vizualize with a dotplot and a network map. 
 ```{r}
 #Loading Necessary Libraries
 library(dplyr)
@@ -24,24 +25,29 @@ names(genes) = (geneList[["ENTREZID"]])
 genes = sort(genes , decreasing = TRUE)
 
 #GeneSetEncrichmentAnalysis using the DOSE library 
-edo2 <- gseNCG(geneList = genes, verbose = TRUE)
+edo2 <- gseNCG(geneList = genes)
 
+```
+
+This chunk constructs a dotplot for the DOSE gene set enrichment analysis
+
+```{r}
 #Loading visualization libraries
 library(enrichplot)
 
 #Creating a dotplot for Visualization 
-p2 <- dotplot(edo2, showCategory=30) + ggtitle("dotplot for GSEA")
+p2 <- dotplot(edo2, showCategory=30) + ggtitle("dotplot for SIRT5cor_all Data")
 plot_grid(p2, ncol=1)
+```
 
+This chunk constructs a network map for the DOSE gene set enrichment anlysis
+
+```{r}
 #Creating a network map with the category as central nodes
-edox <- setReadable(edo2, 'org.Hs.eg.db', 'ENTREZID')
+edox <- setReadable(edo2, 'org.Hs.eg.db', 'ENTREZID', keyType="auto")
 cnetplot(edox, colorEdge = TRUE)
 
 #cnetplot(edox,circular = TRUE, colorEdge = TRUE)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
