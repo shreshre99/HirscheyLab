@@ -1,0 +1,211 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(tidyverse)
+library(KEGGREST)
+
+
+# master <- kegg_reaction_raw %>% 
+#   separate("reaction", c("k1","k2","k3", "kegg_reaction_defn"), sep = ";", fill = "left") %>% #no more than 4 commas, so separates into 4 columns, and fills left, which is key to put all reaction equations into far left column
+#   replace_na(list(k1 = "", k2 = "", k3 = "")) %>% #drops NAs for next 'unite' step, which is essentially paste
+#   unite("kegg_reaction_name", c("k1","k2","k3"), sep = ",", remove = TRUE) #unites temp k1-k3 columns, adds commas, and removes temp columns
+# 
+# master$kegg_reaction_name <- str_replace_all(master$kegg_reaction_name, "^,{1,3}", "") #string replace to get rid of preceeding(^) commas, selecting between 1-3 {1,3}
+
+setwd("C:/Users/Shreyas Kulkarni/Documents/School/Research/Hirschey Lab")
+
+df <- read.csv("kegg_reaction.csv" , header = TRUE , quote = "\"", 
+                dec = "," , fill = TRUE , strip.white = TRUE , stringsAsFactors = FALSE)
+#print(df)
+str(df)
+
+NADPHreax <- filter_at(df , vars(starts_with("REACTION_EQN")) , any_vars(regexpr("C00003" , df[,7] )!= -1 | regexpr("C00004" , df[,7]) != -1 | regexpr("C00005" , df[,7]) != -1 | regexpr("C00006" , df[,7]) != -1))
+
+#rn:R02559
+
+#l <- list()
+
+# for (num in 1:nrow(NADPHreax)){
+#   tempVT <- substr(NADPHreax[num , 2] , 4 , 9)
+#   tempV <- keggGet(tempVT)
+#   l[[num]]<- (tempV[[1]][["ENZYME"]])
+#   #print(num)
+#   }
+#newNAD <- data.frame(matrix(unlist(l), nrow=10000, byrow=T),stringsAsFactors=FALSE)
+newNAD <- as.data.frame(l)
+#cbind(NADPHreax , l)
+View(newNAD)
+
+
+
+
+
+```
+
+
+This initial part of code starts the data cleaning for the first object
+
+```{r}
+library(tidyverse)
+library(igraph)
+library(ggraph)
+library(XML)
+library(methods)
+require(XML)
+library(gtools)
+#This code downloads the xml file and then selects the name of the gene set and its members
+result <- xmlParse("msigdb_v6.2.xml")
+resultFrame <- xmlToList(result)
+resultsMin <- lapply(resultFrame, function(x) {x[c(1,2 ,19, 20)]})
+#This chooses the first gene set
+resultsTen <- resultsMin[1]
+#View(resultsTen)
+members <- list()
+i<- 1
+while(i < length(resultsTen)+1){
+  tempResults <- pluck(resultsTen, i)
+  members[[i]] <- strsplit(tempResults , ",")
+  i <- i+1
+}
+#View(members)
+memberV <- unlist(members[[1]]["MEMBERS"])
+tempMemberV <- as.data.frame(memberV)
+
+
+
+#DOING THE SECOND GENE SET
+resultsTenTwo <- resultsMin[2]
+membersTwo <- list()
+i<- 1
+while(i < length(resultsTenTwo)+1){
+  tempResults <- pluck(resultsTenTwo, i)
+  membersTwo[[i]] <- strsplit(tempResults , ",")
+  i <- i+1
+}
+#View(members)
+memberVTwo <- unlist(membersTwo[[1]]["MEMBERS"])
+tempMemberVTwo <- as.data.frame(memberVTwo)
+
+
+#DOING THE THIRD GENE SET
+resultsTenThree <- resultsMin[3]
+membersThree <- list()
+i<- 1
+while(i < length(resultsTenThree)+1){
+  tempResults <- pluck(resultsTenThree, i)
+  membersThree[[i]] <- strsplit(tempResults , ",")
+  i <- i+1
+}
+#View(members)
+memberVThree <- unlist(membersThree[[1]]["MEMBERS"])
+tempMemberVThree <- as.data.frame(memberVThree)
+
+
+
+
+
+
+
+
+
+
+
+
+#Now there are two data frames with the genes of a gene set. Conduct Permutations then merge and only 
+
+
+
+
+
+
+tcounts <- as.data.frame(row.names(tempMemberV))
+realTcounts <-as.data.frame(row.names(tcounts))
+tempMemberV <- cbind(realTcounts , tempMemberV)
+colnames(tempMemberV) <- c("id", "name") #Use tempMemberV to create permuatation table
+memberV <- dplyr::select(tempMemberV, "id")
+memberV <- memberV[["id"]]
+
+memberPerm <- combinations(201 , 2, memberV)
+
+memberV <- as.data.frame(memberV)
+memberV <- dplyr::tbl_df(memberV)
+
+memberPerm <-as.data.frame(memberPerm)
+memberPerm <-dplyr::tbl_df(memberPerm)
+
+colnames(memberPerm) <- c("to", "from")
+memberPerm <- dplyr::mutate(memberPerm , weight = 1)
+counts <- as.data.frame(row.names(memberV))
+memberV <- cbind(counts , memberV)
+colnames(memberV) <- c("id", "name")
+
+#memberV <- memberV[order(memberV$name),]
+
+masterData <- memberPerm 
+
+
+
+```
+
+This part of code goes through the second gene set and cleans it for binding to the previous one for graphing
+
+```{r}
+resultsTen <- resultsMin[2]
+#View(resultsTen)
+members <- list()
+i<- 1
+while(i < length(resultsTen)+1){
+  tempResults <- pluck(resultsTen, i)
+  members[[i]] <- strsplit(tempResults , ",")
+  i <- i+1
+}
+memberV <- unlist(members[[1]]["MEMBERS"])
+tempMemberV <- as.data.frame(memberV)
+tcounts <- as.data.frame(row.names(tempMemberV))
+realTcounts <-as.data.frame(row.names(tcounts))
+tempMemberV <- cbind(realTcounts , tempMemberV)
+colnames(tempMemberV) <- c("id", "name") #Use tempMemberV to create permuatation table
+memberV <- dplyr::select(tempMemberV, "id")
+memberV <- memberV[["id"]]
+
+memberPerm <- combinations(201 , 2, memberV)
+
+memberV <- as.data.frame(memberV)
+memberV <- dplyr::tbl_df(memberV)
+
+memberPerm <-as.data.frame(memberPerm)
+memberPerm <-dplyr::tbl_df(memberPerm)
+
+colnames(memberPerm) <- c("to", "from")
+memberPerm <- dplyr::mutate(memberPerm , weight = 1)
+counts <- as.data.frame(row.names(memberV))
+memberV <- cbind(counts , memberV)
+colnames(memberV) <- c("id", "name")
+
+masterData <- rbind(masterData, memberPerm)
+
+```
+
+
+This part constructs the actual graph and vizualizes it with the first two gene sets
+
+```{r}
+g <- graph_from_data_frame(masterData, directed = FALSE, vertices = memberV)
+
+g$name <- "Test Network"
+
+ggraph(g, layout = "with_kk") + 
+  # Add an edge link geometry mapping transparency to weight 
+  geom_edge_link(aes(alpha = weight)) + 
+  # Add a node point geometry
+  geom_node_point()
+
+```
+
