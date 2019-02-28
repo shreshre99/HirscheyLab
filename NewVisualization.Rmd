@@ -44,7 +44,7 @@ This chunk constructs a network map for the DOSE gene set enrichment anlysis
 
 ```{r}
 #Creating a network map with the category as central nodes
-edox <- setReadable(edo2, 'org.Hs.eg.db', 'ENTREZID', keyType="auto")
+edox <- setReadable(edo2, 'org.Hs.eg.db', 'ENTREZID')
 cnetplot(edox, colorEdge = TRUE)
 
 #cnetplot(edox,circular = TRUE, colorEdge = TRUE)
