@@ -18,8 +18,7 @@ geneList <- SIRT5cor_all
 #geneList <- geneList[order(-geneList$SIRT5),]
 
 
-#Creating the correct data struture for input, a named vector of correlation values for analysis. Ensured to be sorted in 
-#decreasing order
+#Creating the correct data struture for input, a named vector of correlation values for analysis. Ensured to be sorted in decreasing order
 genes = geneList[["SIRT5"]]
 names(genes) = (geneList[["ENTREZID"]])
 genes = sort(genes , decreasing = TRUE)
