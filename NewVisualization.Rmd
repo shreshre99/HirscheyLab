@@ -14,7 +14,7 @@ library(dplyr)
 library(DOSE)
 
 #Copying over the dataframe
-geneList <- SIRT5cor_all
+geneList <- SIRT5cor_nontumor
 #geneList <- geneList[order(-geneList$SIRT5),]
 
 
@@ -48,6 +48,30 @@ edox <- setReadable(edo2, 'org.Hs.eg.db', 'ENTREZID')
 cnetplot(edox, colorEdge = TRUE)
 
 #cnetplot(edox,circular = TRUE, colorEdge = TRUE)
+```
+```{r}
+library(clusterProfiler)
+library(pathview)
+
+#what <- names(genes)
+
+keggResult <- gseKEGG(genes , organism = "hsa", keyType = "kegg")
+
+p3 <- dotplot(keggResult, showCategory=145) + ggtitle("dotplot for SIRT5cor_all Data")
+dev.new()
+plot_grid(p3, ncol=1)
+
+keggX <- setReadable(keggResult, 'org.Hs.eg.db', 'ENTREZID')
+#cnetplot(keggX, colorEdge = TRUE)
+
+heatplot(keggX)
+plot(yo)
+
+results <- keggX@result
+resultsGeneSets <- keggX@geneSets
+#acsorbateAldolate <- resultsGeneSets[["hsa00053"]]
+
+
 ```
 
 
