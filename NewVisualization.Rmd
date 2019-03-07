@@ -36,7 +36,7 @@ This chunk constructs a dotplot for the DOSE gene set enrichment analysis
 library(enrichplot)
 
 #Creating a dotplot for Visualization 
-p2 <- dotplot(edo2, showCategory=30) + ggtitle("dotplot for SIRT5cor_all Data")
+p2 <- dotplot(edo2, showCategory=20000) + ggtitle("dotplot for SIRT5cor_all Data")
 plot_grid(p2, ncol=1)
 ```
 
@@ -46,6 +46,7 @@ This chunk constructs a network map for the DOSE gene set enrichment anlysis
 #Creating a network map with the category as central nodes
 edox <- setReadable(edo2, 'org.Hs.eg.db', 'ENTREZID')
 cnetplot(edox, colorEdge = TRUE)
+heatplot(edox, showCategory = 20000, foldChange = genes)
 
 #cnetplot(edox,circular = TRUE, colorEdge = TRUE)
 ```
@@ -57,20 +58,26 @@ library(pathview)
 
 keggResult <- gseKEGG(genes , organism = "hsa", keyType = "kegg")
 
-p3 <- dotplot(keggResult, showCategory=145) + ggtitle("dotplot for SIRT5cor_all Data")
-dev.new()
+
+
+p3 <- dotplot(keggResult, showCategory=145, xtitleFont=c(14,"bold", "#993333"),
+                ytitleFont=c(14,"bold", "#993333")) + ggtitle("dotplot for SIRT5cor_all Data")
+theme_set(theme_gray(base_size = 0.01))
 plot_grid(p3, ncol=1)
 
 keggX <- setReadable(keggResult, 'org.Hs.eg.db', 'ENTREZID')
 #cnetplot(keggX, colorEdge = TRUE)
 
-heatplot(keggX)
-plot(yo)
+
+heatplot.enrichResult(keggX, showCategory = 30, foldChange = NULL)
+enrichRe
+
 
 results <- keggX@result
 resultsGeneSets <- keggX@geneSets
 #acsorbateAldolate <- resultsGeneSets[["hsa00053"]]
 
+write.csv(results , 'clusterProfilerKeggGSEA.csv')
 
 ```
 
