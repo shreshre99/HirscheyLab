@@ -46,7 +46,7 @@ This chunk constructs a network map for the DOSE gene set enrichment anlysis
 #Creating a network map with the category as central nodes
 edox <- setReadable(edo2, 'org.Hs.eg.db', 'ENTREZID')
 cnetplot(edox, colorEdge = TRUE)
-heatplot(edox, showCategory = 20000, foldChange = genes)
+heatplot(edox, showCategory = 20, foldChange = genes)
 
 #cnetplot(edox,circular = TRUE, colorEdge = TRUE)
 ```
@@ -60,16 +60,14 @@ keggResult <- gseKEGG(genes , organism = "hsa", keyType = "kegg")
 
 
 
-p3 <- dotplot(keggResult, showCategory=145, xtitleFont=c(14,"bold", "#993333"),
-                ytitleFont=c(14,"bold", "#993333")) + ggtitle("dotplot for SIRT5cor_all Data")
-theme_set(theme_gray(base_size = 0.01))
+p3 <- dotplot(keggResult, showCategory=30 , font.size = 5) + ggtitle("dotplot for SIRT5cor_all Data")
 plot_grid(p3, ncol=1)
 
 keggX <- setReadable(keggResult, 'org.Hs.eg.db', 'ENTREZID')
 #cnetplot(keggX, colorEdge = TRUE)
 
 
-heatplot.enrichResult(keggX, showCategory = 30, foldChange = NULL)
+heatplot.enrichResult(keggX, showCategory = 1, foldChange = NULL)
 enrichRe
 
 
