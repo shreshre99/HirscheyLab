@@ -20,9 +20,9 @@ geneList <- SIRT5cor_nontumor
 
 #Creating the correct data struture for input, a named vector of correlation values for analysis. Ensured to be sorted in 
 #decreasing order
-genes = geneList[["SIRT5"]]
-names(genes) = (geneList[["ENTREZID"]])
-genes = sort(genes , decreasing = TRUE)
+genes <- geneList[["SIRT5"]] #Select SIRT5 Coorelation 
+names(genes) <- (geneList[["ENTREZID"]]) #Encoding the EntrezID in its position as an attribute of a numeric vector
+genes <- sort(genes , decreasing = TRUE)
 
 #GeneSetEncrichmentAnalysis using the DOSE library 
 edo2 <- gseNCG(geneList = genes)
@@ -56,23 +56,25 @@ library(pathview)
 
 #what <- names(genes)
 
-keggResult <- gseKEGG(genes , organism = "hsa", keyType = "kegg")
-
-
-
-p3 <- dotplot(keggResult, showCategory=30 , font.size = 5) + ggtitle("dotplot for SIRT5cor_all Data")
-plot_grid(p3, ncol=1)
-
-keggX <- setReadable(keggResult, 'org.Hs.eg.db', 'ENTREZID')
+keggResult <- gseKEGG(genes , organism = "hsa", keyType = "ncbi-geneid")
+keggX <- setReadable(keggResult, 'org.Hs.eg.db', keyType = 'ENTREZID')
 #cnetplot(keggX, colorEdge = TRUE)
 
+
+
+results <- keggX@result
+resultsGeneSets <- keggX@geneSets
+
+
+
+p3 <- dotplot(keggResult,showCategory = 1, x = 'GeneRatio' , color = "pvalue", font.size = 12) + ggtitle("dotplot for SIRT5cor_all Data")
+plot_grid(p3, ncol=1)
 
 heatplot.enrichResult(keggX, showCategory = 1, foldChange = NULL)
 enrichRe
 
 
-results <- keggX@result
-resultsGeneSets <- keggX@geneSets
+
 #acsorbateAldolate <- resultsGeneSets[["hsa00053"]]
 
 write.csv(results , 'clusterProfilerKeggGSEA.csv')
