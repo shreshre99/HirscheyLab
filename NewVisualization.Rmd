@@ -25,7 +25,7 @@ names(genes) <- (geneList[["ENTREZID"]]) #Encoding the EntrezID in its position 
 genes <- sort(genes , decreasing = TRUE)
 
 #GeneSetEncrichmentAnalysis using the DOSE library 
-edo2 <- gseNCG(geneList = genes)
+# edo2 <- gseNCG(geneList = genes)
 
 ```
 
@@ -33,20 +33,20 @@ This chunk constructs a dotplot for the DOSE gene set enrichment analysis
 
 ```{r}
 #Loading visualization libraries
-library(enrichplot)
+# library(enrichplot)
 
 #Creating a dotplot for Visualization 
-p2 <- dotplot(edo2, showCategory=20000) + ggtitle("dotplot for SIRT5cor_all Data")
-plot_grid(p2, ncol=1)
+# p2 <- dotplot(edo2, showCategory=20000) + ggtitle("dotplot for SIRT5cor_all Data")
+# plot_grid(p2, ncol=1)
 ```
 
 This chunk constructs a network map for the DOSE gene set enrichment anlysis
 
 ```{r}
 #Creating a network map with the category as central nodes
-edox <- setReadable(edo2, 'org.Hs.eg.db', 'ENTREZID')
-cnetplot(edox, colorEdge = TRUE)
-heatplot(edox, showCategory = 20, foldChange = genes)
+# edox <- setReadable(edo2, 'org.Hs.eg.db', 'ENTREZID')
+# cnetplot(edox, colorEdge = TRUE)
+# heatplot(edox, showCategory = 20, foldChange = genes)
 
 #cnetplot(edox,circular = TRUE, colorEdge = TRUE)
 ```
@@ -70,9 +70,7 @@ resultsGeneSets <- keggX@geneSets
 p3 <- dotplot(keggResult,showCategory = 1, x = 'GeneRatio' , color = "pvalue", font.size = 12) + ggtitle("dotplot for SIRT5cor_all Data")
 plot_grid(p3, ncol=1)
 
-heatplot.enrichResult(keggX, showCategory = 1, foldChange = NULL)
-enrichRe
-
+test <- pathview(gene.data = genes , pathway.id = "hsa05016" , species = 'hsa' , limit = list(gene=max(abs(genes)), cpd=1))
 
 
 #acsorbateAldolate <- resultsGeneSets[["hsa00053"]]

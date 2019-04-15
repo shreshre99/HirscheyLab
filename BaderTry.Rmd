@@ -1,0 +1,64 @@
+---
+title: "EnrichmentMapBaderLab"
+output: html_document
+---
+
+#Install the libraries
+```{r setup, include=FALSE}
+
+
+#install required R and bioconductor packages
+tryCatch(expr = { library("RCurl")}, 
+         error = function(e) {  install.packages("RCurl")}, 
+         finally = library("RCurl"))
+
+#use library
+tryCatch(expr = { library("limma")}, 
+         error = function(e) { source("https://bioconductor.org/biocLite.R")
+           biocLite("limma")}, 
+         finally = library("limma"))
+tryCatch(expr = { library("Biobase")}, 
+         error = function(e) { source("https://bioconductor.org/biocLite.R")
+           biocLite("Biobase")}, 
+         finally = library("Biobase"))
+tryCatch(expr = { library("ggplot2")}, 
+         error = function(e) { install.packages("ggplot2")}, 
+         finally = library("ggplot2"))
+
+#For creating json and communicating with cytoscape
+tryCatch(expr = { library("httr")}, 
+         error = function(e) { install.packages("httr")}, 
+         finally = library("httr"))
+tryCatch(expr = { library("RJSONIO")}, 
+         error = function(e) { install.packages("RJSONIO")}, 
+         finally = library("RJSONIO"))
+
+```
+
+## R Markdown
+
+```{r cars}
+# Basic settings
+port.number = 1234
+base.url = paste("http://localhost:", toString(port.number), "/v1", sep="")
+
+#print(base.url)
+
+version.url = paste(base.url, "version", sep="/")
+cytoscape.open = TRUE
+
+tryCatch(expr = { GET(version.url)}, 
+         error = function(e) { return (cytoscape.open = FALSE)}, finally =function(r){ return(cytoscape.open = TRUE)})
+         
+if(!cytoscape.open){
+  #try and launch cytoscape
+ print("Cytoscape is not open.  Please launch cytoscape.")
+} else{
+  cytoscape.version =  GET(version.url)
+  cy.version = fromJSON(rawToChar(cytoscape.version$content))
+  print(cy.version)
+  
+}
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

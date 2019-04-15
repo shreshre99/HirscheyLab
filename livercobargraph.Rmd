@@ -1,0 +1,54 @@
+---
+title: "livercobargraph"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+
+SIRT5corPear <- SIRT5corPear
+
+sortPear <- arrange(SIRT5corPear , desc(SIRT5))
+sortPear <- top_n(sortPear , 20 , SIRT5)
+sortPear <- select(sortPear , SYMBOL, SIRT5)
+
+sortPear <- aggregate(.~sortPear$SYMBOL, FUN=mean, data=sortPear[, -1])
+names(sortPear)[names(sortPear) == 'sortPear$SYMBOL'] <- 'SYMBOL'
+sortPear <- arrange(sortPear, desc(SIRT5))
+sortPear <- slice(sortPear , 2:length(sortPear$SIRT5))
+
+sortPear$SYMBOL <- as.character(sortPear$SYMBOL)
+#Then turn it back into a factor with the levels in the correct order
+sortPear$SYMBOL <- factor(sortPear$SYMBOL, levels=unique(sortPear$SYMBOL))
+
+
+g <- ggplot(sortPear , aes(x = SYMBOL, y = SIRT5))
+
+g  +  coord_flip()  + geom_bar() + scale_y_continuous(limits = c(.5,.7))
+
+
+#plot(g)
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
