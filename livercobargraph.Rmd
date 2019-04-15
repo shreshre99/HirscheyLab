@@ -6,6 +6,9 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(RColorBrewer)
+library(ggplot2)
+library(ggrepel)
 ```
 
 ## R Markdown
@@ -24,20 +27,46 @@ sortPear <- select(sortPear , SYMBOL, SIRT5)
 
 sortPear <- aggregate(.~sortPear$SYMBOL, FUN=mean, data=sortPear[, -1])
 names(sortPear)[names(sortPear) == 'sortPear$SYMBOL'] <- 'SYMBOL'
-sortPear <- arrange(sortPear, desc(SIRT5))
-sortPear <- slice(sortPear , 2:length(sortPear$SIRT5))
+sortPear <- sortPear %>% arrange(SIRT5)
+sortPear <- slice(sortPear , 1:length(sortPear$SIRT5)-1)
 
 sortPear$SYMBOL <- as.character(sortPear$SYMBOL)
 #Then turn it back into a factor with the levels in the correct order
 sortPear$SYMBOL <- factor(sortPear$SYMBOL, levels=unique(sortPear$SYMBOL))
 
 
-g <- ggplot(sortPear , aes(x = SYMBOL, y = SIRT5))
-
-g  +  coord_flip()  + geom_bar() + scale_y_continuous(limits = c(.5,.7))
 
 
-#plot(g)
+library(biomaRt)
+ensembl <- useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl")
+genedesc <- getBM(attributes=c('external_gene_name','description'), filters = 'external_gene_name', values = sortPear$SYMBOL, mart =ensembl)
+
+genedesc$description <- sapply(strsplit(genedesc$description, split='[', fixed=TRUE), function(x) (x[1]))
+names(genedesc)[names(genedesc) == 'external_gene_name'] <- 'SYMBOL'
+
+
+
+sortPearTemp <- left_join(sortPear , genedesc)
+
+
+# 
+# library(rentrez)
+# genesFunc <- entrez_summary(db="gene", id=c(501))
+# genesFunc$summary
+
+getwd()
+
+ggplot(data = sortPear , aes(x = SYMBOL, y = SIRT5)) + 
+  geom_col(data = sortPear , aes(x = SYMBOL, y = SIRT5) , )  +  
+  labs(y = "Pearson Coorelation Values", x = "Gene IDs" , title = "Highest SIRT5 Coorelating Genes")+
+  geom_text_repel(data = sortPear , label = sortPearTemp$description, colour = "Black", nudge_x = -0.35,nudge_y = 0.25,
+    direction    = "y",
+    hjust        = 0,
+    segment.size = 0.2, size = 3)+
+  coord_flip(ylim = c(.57, .73), ) + 
+  theme_light()+
+  ggsave("highestSIRT5coorelatinggenes.png")
+
 
 
 ```
